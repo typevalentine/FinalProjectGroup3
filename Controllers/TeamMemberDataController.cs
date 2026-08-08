@@ -19,11 +19,11 @@ namespace FinalProjectGroup3.Controllers
         {
             var teamMemberData = new Models.TeamMemberData
             {
+                Id = 12314,
                 FullName = "Valentine Miller",
                 Birthdate = new DateTime(2006, 1, 11),
                 CollegeProgram = "Information Technology",
                 YearInProgram = 3,
-                Hobby = "Drawing"
             };
             return Ok(teamMemberData);
         }
