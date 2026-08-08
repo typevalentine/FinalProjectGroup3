@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using FinalProjectGroup3.Data;
+using FinalProjectGroup3.Models;
 
 namespace FinalProjectGroup3.Controllers
 {
@@ -6,26 +8,52 @@ namespace FinalProjectGroup3.Controllers
     [Route("[controller]")]
     public class TeamMemberDataController : ControllerBase
     {
-        private readonly ILogger<TeamMemberDataController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public TeamMemberDataController(ILogger<TeamMemberDataController> logger)
+        public TeamMemberDataController(ApplicationDbContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
         [HttpGet]
-
-        public IActionResult Get()
+        public IActionResult Get(int? id)
         {
-            var teamMemberData = new Models.TeamMemberData
+            if (id == null || id == 0)
             {
-                Id = 12314,
-                FullName = "Valentine Miller",
-                Birthdate = new DateTime(2006, 1, 11),
-                CollegeProgram = "Information Technology",
-                YearInProgram = 3,
-            };
-            return Ok(teamMemberData);
+                return Ok(_context.TeamMemberData.Take(5).ToList());
+            }
+
+            var member = _context.TeamMemberData.Find(id);
+            if (member == null) return NotFound();
+
+            return Ok(member);
+        }
+
+        [HttpPost]
+        public IActionResult Post(TeamMemberData member)
+        {
+            _context.TeamMemberData.Add(member);
+            _context.SaveChanges();
+            return Ok(member);
+        }
+
+        [HttpPut]
+        public IActionResult Put(TeamMemberData member)
+        {
+            _context.TeamMemberData.Update(member);
+            _context.SaveChanges();
+            return Ok(member);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var member = _context.TeamMemberData.Find(id);
+            if (member == null) return NotFound();
+
+            _context.TeamMemberData.Remove(member);
+            _context.SaveChanges();
+            return Ok();
         }
     }
 }

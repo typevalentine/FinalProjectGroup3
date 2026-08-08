@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using FinalProjectGroup3.Data;
+using FinalProjectGroup3.Models;
 
 namespace FinalProjectGroup3.Controllers
 {
@@ -6,26 +8,52 @@ namespace FinalProjectGroup3.Controllers
     [Route("[controller]")]
     public class TravelDestinationController : ControllerBase
     {
-        private readonly ILogger<TravelDestinationController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public TravelDestinationController(ILogger<TravelDestinationController> logger)
+        public TravelDestinationController(ApplicationDbContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult Get(int? id)
         {
-            var travelDestinationData = new Models.TravelDestination
+            if (id == null || id == 0)
             {
-                Id = 95432,
-                DestinationName = "Berlin",
-                Country = "Germany",
-                Description = "The capital of Germany, they are known for their nightlife and historical landmarks.",
-                BestSeasonToVisit = "Late Spring and Early Summer",
-                Rating = 5
-            };
-            return Ok(travelDestinationData);
+                return Ok(_context.TravelDestinations.Take(5).ToList());
+            }
+
+            var destination = _context.TravelDestinations.Find(id);
+            if (destination == null) return NotFound();
+
+            return Ok(destination);
+        }
+
+        [HttpPost]
+        public IActionResult Post(TravelDestination destination)
+        {
+            _context.TravelDestinations.Add(destination);
+            _context.SaveChanges();
+            return Ok(destination);
+        }
+
+        [HttpPut]
+        public IActionResult Put(TravelDestination destination)
+        {
+            _context.TravelDestinations.Update(destination);
+            _context.SaveChanges();
+            return Ok(destination);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var destination = _context.TravelDestinations.Find(id);
+            if (destination == null) return NotFound();
+
+            _context.TravelDestinations.Remove(destination);
+            _context.SaveChanges();
+            return Ok();
         }
     }
 }
