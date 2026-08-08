@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using FinalProjectGroup3.Data;
+using FinalProjectGroup3.Models;
 
 namespace FinalProjectGroup3.Controllers
 {
@@ -6,26 +8,52 @@ namespace FinalProjectGroup3.Controllers
     [Route("[controller]")]
     public class VideoGameController : ControllerBase
     {
-        private readonly ILogger<VideoGameController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public VideoGameController(ILogger<VideoGameController> logger)
+        public VideoGameController(ApplicationDbContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
         [HttpGet]
-
-        public IActionResult Get()
+        public IActionResult Get(int? id)
         {
-            var videoGameData = new Models.VideoGame
+            if (id == null || id == 0)
             {
-                Id = 34821,
-                Title = "Outer Wilds",
-                Engine = "Unity",
-                ReleaseYear = 2019,
-                IsMultiplayer = false
-            };
-            return Ok(videoGameData);
+                return Ok(_context.VideoGames.Take(5).ToList());
+            }
+
+            var game = _context.VideoGames.Find(id);
+            if (game == null) return NotFound();
+
+            return Ok(game);
+        }
+
+        [HttpPost]
+        public IActionResult Post(VideoGame game)
+        {
+            _context.VideoGames.Add(game);
+            _context.SaveChanges();
+            return Ok(game);
+        }
+
+        [HttpPut]
+        public IActionResult Put(VideoGame game)
+        {
+            _context.VideoGames.Update(game);
+            _context.SaveChanges();
+            return Ok(game);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var game = _context.VideoGames.Find(id);
+            if (game == null) return NotFound();
+
+            _context.VideoGames.Remove(game);
+            _context.SaveChanges();
+            return Ok();
         }
     }
 }
